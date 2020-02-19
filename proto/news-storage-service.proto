@@ -7,7 +7,6 @@ import "google/protobuf/timestamp.proto";
 message NewsItem {
     uint32 ID = 1;
     string Header = 2;
-    string Content = 3;
     google.protobuf.Timestamp CreationDate = 4;
 }
 
