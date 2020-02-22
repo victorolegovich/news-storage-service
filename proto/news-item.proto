@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package proto;
+
+message NewsItem {
+    string ID = 1;
+    string Header = 2;
+    string CreationDate = 3;
+}

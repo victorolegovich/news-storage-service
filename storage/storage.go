@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jackc/pgx"
 	"github.com/victorolegovich/news-storage-service/proto"
 )
@@ -21,16 +20,6 @@ type Storage struct {
 	connection *pgx.Conn
 }
 
-func (p *Storage) GetNewsItemByID(ID int32) (ni *proto.NewsItem) {
-	var (
-		header string
-		date   *timestamp.Timestamp
-	)
-
-	err := p.connection.QueryRow(context.Background(), "", ID).Scan(header, date)
-	if err != nil {
-		println(err.Error())
-		return
-	}
+func (p *Storage) GetNewsItemByID(ID string) (ni *proto.NewsItem, err error) {
 	return
 }
