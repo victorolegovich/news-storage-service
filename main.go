@@ -45,18 +45,24 @@ func main() {
 
 func reply(logger *zap.Logger) func(msg *nats.Msg) {
 	return func(msg *nats.Msg) {
-		store := storage.New()
+		store, err := storage.New()
+		if err != nil {
+			logger.Error("Error during initialization of database connection", zap.Error(err))
+			return
+		}
 
 		ID := string(msg.Data)
 
 		newsItem, err := store.GetNewsItemByID(ID)
 		if err != nil {
 			logger.Error("no news with this ID was found.", zap.Error(err))
+			return
 		}
 
-		message, err := proto.Marshal(newsItem)
+		message, err := proto.Marshal(&newsItem)
 		if err != nil {
 			logger.Error("message could not be converted", zap.Error(err))
+			return
 		}
 
 		err = msg.Respond(message)
@@ -66,6 +72,7 @@ func reply(logger *zap.Logger) func(msg *nats.Msg) {
 				zap.Error(err),
 				zap.String("sub", msg.Subject),
 			)
+			return
 		}
 	}
 }
