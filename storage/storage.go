@@ -23,27 +23,31 @@ type Storage struct {
 	conn *pgx.Conn
 }
 
-func (p *Storage) GetNewsItemByID(ID string) (item proto.NewsItem, err error) {
+func (s *Storage) GetNewsItemByID(ID string) (item proto.NewsItem, err error) {
 	item.ID = ID
 
-	err = p.conn.QueryRow(context.Background(),
+	err = s.conn.QueryRow(context.Background(),
 		"SELECT header FROM public.news WHERE id = $1", ID).
 		Scan(&item.Header)
 
 	return
 }
 
+func (s *Storage) Close() error {
+	return s.conn.Close(context.Background())
+}
+
 func connAddr() string {
 	const (
 		h    = "localhost"
-		p    = "5032"
+		p    = "5432"
 		u    = "postgres"
 		pass = "Dbrnjh777"
 		dbn  = "postgres"
 		ssl  = "disable"
 	)
 
-	return "h=" + h + " p=" + p + " u=" + u + " pass=" + pass + " dbn=" + dbn + " sslmode=" + ssl
+	return "host=" + h + " port=" + p + " user=" + u + " password=" + pass + " dbname=" + dbn + " sslmode=" + ssl
 }
 
 func createTableIfNotExists(c *pgx.Conn) error {
