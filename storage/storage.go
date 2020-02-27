@@ -14,7 +14,7 @@ func New() (*Storage, error) {
 		println("failed to create a logger zap")
 		return nil, err
 	}
-	connString := postgres_config.NewConfig(logger).String()
+	connString := postgres_config.New(logger).String()
 	conn, err := pgx.Connect(context.Background(), connString)
 	if err != nil {
 		return nil, err
@@ -34,9 +34,11 @@ type Storage struct {
 func (s *Storage) GetNewsItemByID(ID string) (item proto.NewsItem, err error) {
 	item.ID = ID
 
+	println(ID)
+
 	err = s.conn.QueryRow(context.Background(),
-		"SELECT header FROM public.news WHERE id = $1", ID).
-		Scan(&item.Header)
+		"select header,to_char(creation_date,'DD-MM-YYYY') from public.news where id = $1", ID).
+		Scan(&item.Header, &item.CreationDate)
 
 	return
 }
@@ -50,6 +52,7 @@ func createTableIfNotExists(c *pgx.Conn) error {
 (
     id text NOT NULL,
     header text NOT NULL,
+	creation_date date,
     PRIMARY KEY (id)
 );`
 
