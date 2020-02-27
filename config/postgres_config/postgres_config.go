@@ -25,7 +25,7 @@ type Config struct {
 	PgHost, PgPort, PgUser, PgPass, PgDB, PgSSL string
 }
 
-func NewConfig(logger *zap.Logger) *Config {
+func New(logger *zap.Logger) *Config {
 	var (
 		host, port, user, pass, dbname, ssl string
 	)

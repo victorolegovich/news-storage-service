@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
 	config "github.com/victorolegovich/news-storage-service/config/nats_config"
 	"github.com/victorolegovich/news-storage-service/storage"
@@ -36,43 +35,11 @@ func main() {
 	}
 	logger.Info("the connection to the database was successful")
 
-	if _, err = broker.QueueSubscribe(conf.Subject, conf.NewsQueue, func(msg *nats.Msg) {
-		logger.Info("New request received.", zap.String("message", string(msg.Data)))
-
-		ID := string(msg.Data)
-
-		newsItem, err := store.GetNewsItemByID(ID)
-		if err != nil {
-			logger.Error("no news with this ID was found.", zap.Error(err))
-			if err = msg.Respond([]byte("no record was found")); err != nil {
-				logger.Error(
-					"failed to respond to a message from the sender of the request",
-					zap.String("sub", msg.Subject),
-					zap.Error(err),
-				)
-			}
-			return
-		}
-
-		message, err := proto.Marshal(&newsItem)
-		if err != nil {
-			logger.Error("message could not be converted", zap.Error(err))
-			return
-		}
-
-		err = msg.Respond(message)
-		if err != nil {
-			logger.Error(
-				"message could not be answered",
-				zap.Error(err),
-				zap.String("sub", msg.Subject),
-			)
-			return
-		}
-	}); err != nil && broker.IsConnected() {
+	if _, err = getQueueSubscribe(broker, conf, newsHandler(logger, store)); err != nil {
 		logger.Error("an error occurred when subscribing to the message queue.", zap.Error(err))
 		return
 	}
+
 	if err = broker.Flush(); err != nil && broker.IsConnected() {
 		logger.Error("message broker error", zap.Error(err))
 		return
