@@ -15,9 +15,9 @@ const (
 
 	defaultPgHost = "localhost"
 	defaultPgPort = "5432"
-	defaultPgUser = "postgres_config"
+	defaultPgUser = "postgres"
 	defaultPgPass = "Dbrnjh777"
-	defaultPgDB   = "postgres_config"
+	defaultPgDB   = "postgres"
 	defaultPgSSL  = "disable"
 )
 

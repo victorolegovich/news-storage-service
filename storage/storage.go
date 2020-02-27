@@ -14,7 +14,7 @@ func New() (*Storage, error) {
 		println("failed to create a logger zap")
 		return nil, err
 	}
-	connString := postgres_config.NewConfig(logger)
+	connString := postgres_config.NewConfig(logger).String()
 	conn, err := pgx.Connect(context.Background(), connString)
 	if err != nil {
 		return nil, err
