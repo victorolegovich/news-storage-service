@@ -3,11 +3,19 @@ package storage
 import (
 	"context"
 	"github.com/jackc/pgx/v4"
+	"github.com/victorolegovich/news-storage-service/config/postgres_config"
 	"github.com/victorolegovich/news-storage-service/proto"
+	"go.uber.org/zap"
 )
 
 func New() (*Storage, error) {
-	conn, err := pgx.Connect(context.Background(), connAddr())
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		println("failed to create a logger zap")
+		return nil, err
+	}
+	connString := postgres_config.NewConfig(logger)
+	conn, err := pgx.Connect(context.Background(), connString)
 	if err != nil {
 		return nil, err
 	}
@@ -35,19 +43,6 @@ func (s *Storage) GetNewsItemByID(ID string) (item proto.NewsItem, err error) {
 
 func (s *Storage) Close() error {
 	return s.conn.Close(context.Background())
-}
-
-func connAddr() string {
-	const (
-		h    = "localhost"
-		p    = "5432"
-		u    = "postgres_config"
-		pass = "Dbrnjh777"
-		dbn  = "postgres_config"
-		ssl  = "disable"
-	)
-
-	return "host=" + h + " port=" + p + " user=" + u + " password=" + pass + " dbname=" + dbn + " sslmode=" + ssl
 }
 
 func createTableIfNotExists(c *pgx.Conn) error {
