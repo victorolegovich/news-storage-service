@@ -47,6 +47,5 @@ func New(logger *zap.Logger) *Config {
 		)
 		queue = defaultNewsQueue
 	}
-
 	return &Config{ServerURL: url, Subject: sub, NewsQueue: queue}
 }
