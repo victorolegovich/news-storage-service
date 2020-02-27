@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
+	config "github.com/victorolegovich/news-storage-service/config/nats_config"
 	"github.com/victorolegovich/news-storage-service/storage"
 	"go.uber.org/zap"
 	"os"
@@ -17,14 +18,16 @@ func main() {
 		return
 	}
 
-	broker, err := nats.Connect(nats.DefaultURL)
+	conf := config.New(logger)
+
+	broker, err := nats.Connect(conf.ServerURL)
 	if err != nil {
 		logger.Error(
 			"failed to connect to the broker-server",
 			zap.Error(err),
 		)
 	}
-	logger.Info("the connection to the nats server was successful")
+	logger.Info("the connection to the nats_config server was successful")
 
 	store, err := storage.New()
 	if err != nil {
@@ -33,7 +36,7 @@ func main() {
 	}
 	logger.Info("the connection to the database was successful")
 
-	if _, err = broker.QueueSubscribe("storage", "news", func(msg *nats.Msg) {
+	if _, err = broker.QueueSubscribe(conf.Subject, conf.NewsQueue, func(msg *nats.Msg) {
 		logger.Info("New request received.", zap.String("message", string(msg.Data)))
 
 		ID := string(msg.Data)
@@ -41,7 +44,13 @@ func main() {
 		newsItem, err := store.GetNewsItemByID(ID)
 		if err != nil {
 			logger.Error("no news with this ID was found.", zap.Error(err))
-			msg.Respond([]byte("no record was found"))
+			if err = msg.Respond([]byte("no record was found")); err != nil {
+				logger.Error(
+					"failed to respond to a message from the sender of the request",
+					zap.String("sub", msg.Subject),
+					zap.Error(err),
+				)
+			}
 			return
 		}
 
