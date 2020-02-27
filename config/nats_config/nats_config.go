@@ -1,4 +1,4 @@
-package nats
+package nats_config
 
 import (
 	"github.com/nats-io/nats.go"
@@ -23,16 +23,16 @@ type Config struct {
 func New(logger *zap.Logger) *Config {
 	url := os.Getenv(envNatshost)
 	if url == "" {
-		logger.Error(
+		logger.Info(
 			"the environment variable was not set with NATS_HOST - it is set by default",
-			zap.String("NATS_HOST", "can cause an error when connecting to the nats server"),
+			zap.String("NATS_HOST", "can cause an error when connecting to the nats_config server"),
 		)
 		url = defaultNatshost
 	}
 
 	sub := os.Getenv(envNatssub)
 	if sub == "" {
-		logger.Error(
+		logger.Info(
 			"the environment variable was not set with NATS_SUB - it is set by default",
 			zap.String("NATS_SUB", "can cause a customer to make a mistake"),
 		)
@@ -41,7 +41,7 @@ func New(logger *zap.Logger) *Config {
 
 	queue := os.Getenv(envNewsQueue)
 	if queue == "" {
-		logger.Error(
+		logger.Info(
 			"the environment variable was not set with NATS_NEWS_QUEUE - it is set by default",
 			zap.String("NATS_NEWS_QUEUE", "can cause a customer to make a mistake"),
 		)
