@@ -41,9 +41,9 @@ func connAddr() string {
 	const (
 		h    = "localhost"
 		p    = "5432"
-		u    = "postgres"
+		u    = "postgres_config"
 		pass = "Dbrnjh777"
-		dbn  = "postgres"
+		dbn  = "postgres_config"
 		ssl  = "disable"
 	)
 
